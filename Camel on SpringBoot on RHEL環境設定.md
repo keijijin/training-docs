@@ -19,8 +19,16 @@
 
 ### **① Java 21 のインストール（RHEL 10 標準）**
 
+rootでログインし直して、
 ```shell
 sudo dnf install -y java-21-openjdk java-21-openjdk-devel
+```
+必要であれば、上のコマンドの前に以下を実行：
+```shell
+sudo subscription-manager register --auto-attach
+sudo dnf update
+
+dnf search openjdk
 ```
 
 確認：
@@ -28,6 +36,11 @@ sudo dnf install -y java-21-openjdk java-21-openjdk-devel
 ```shell
 java -version
 ```
+JDK21になっていなかったら、以下のコマンドにより、バージョン21にスイッチ
+```shell
+sudo alternatives --config java
+```
+  - JDK 21を示す番号を入力し、エンターキーを押す。
 
 ---
 
@@ -43,9 +56,13 @@ sudo ln -s apache-maven-3.9.11 maven
 環境変数（`~/.bashrc` または `~/.zshrc`）に追加：
 
 ```shell
+# JAVA_HOMEをそれぞれの環境に応じて適切に設定する。
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.8.0.9-1.el8.x86_64
+
 export MAVEN_HOME=/opt/maven
 export PATH=$MAVEN_HOME/bin:$PATH
 ```
+
 
 反映：
 
