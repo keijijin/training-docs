@@ -157,9 +157,14 @@ camel:
 ---
 
 ### **⑧ 実行と確認**
-
+- 開発・テスト用
 ```shell
 mvn clean spring-boot:run
+```
+- 本番用
+```shell
+mvn clean package
+java -jar target/camel-handson-training-1.0.0-SNAPSHOT.jar
 ```
 
 動作確認：
