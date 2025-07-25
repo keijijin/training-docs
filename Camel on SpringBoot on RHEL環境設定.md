@@ -183,15 +183,4 @@ curl http://localhost:8080/hello
 | `HawtIO` | 管理UI（別途導入可能） |
 | `Kaoto` | CamelルートのGUI設計（VS Code拡張可） |
 
----
-
-## **📦 必要に応じて提供可能**
-
-* `devcontainer.json` \+ Dockerfile（VS Code DevContainer対応）
-
-* テストコード、JMX、Actuatorの導入例
-
-* Camelルートの構成ガイド（XML IO DSL or Java DSL）
-
-* OpenShift や Podman への展開ガイド
 
