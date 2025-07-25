@@ -10,7 +10,7 @@
 
 [● Spring Boot 3.x	4](#spring-boot-3.x)
 
-[● Spring XML DSL	4](#spring-xml-dsl)
+[● XML IO DSL	4](#xml-io-dsl)
 
 [● 1.3 前提知識と学習ゴール	5](#1.3-前提知識と学習ゴール)
 
@@ -20,15 +20,15 @@
 
 [○ バンドル管理 vs fat JAR	6](#バンドル管理-vs-fat-jar)
 
-[○ Blueprint DSL vs Spring XML DSL	6](#blueprint-dsl-vs-spring-xml-dsl)
+[○ Blueprint DSL vs XML IO DSL	6](#blueprint-dsl-vs-xml-io-dsl)
 
 [○ JMX, コンソール, ログ管理の違い	7](#jmx,-コンソール,-ログ管理の違い)
 
 [● 2.2 Camelコンテキストの起動・停止管理の違い	7](#2.2-camelコンテキストの起動・停止管理の違い)
 
-[● 2.3 移行時の注意点	7](#2.3-移行時の注意点)
+[● 2.3 移行時の注意点	8](#2.3-移行時の注意点)
 
-[○ OSGi依存コードの排除	7](#osgi依存コードの排除)
+[○ OSGi依存コードの排除	8](#osgi依存コードの排除)
 
 [○ ServiceMix・Features定義の削除	8](#servicemix・features定義の削除)
 
@@ -40,153 +40,175 @@
 
 [● 3.2 削除されたコンポーネントと代替策	9](#3.2-削除されたコンポーネントと代替策)
 
-[● 3.3 XML DSL構文変更（例：\<description\>の属性化など）	10](#3.3-xml-dsl構文変更（例：\<description\>の属性化など）)
+[● 3.3 XML IO DSLにおける構文上の変更点（Camel 4）	10](#3.3-xml-io-dslにおける構文上の変更点（camel-4）)
 
-[● 3.4 ストリームキャッシュとスプール設定	11](#3.4-ストリームキャッシュとスプール設定)
+[✅ \<bean\> の利用制限と代替	11](#✅-\<bean\>-の利用制限と代替)
 
-[● 3.5 CamelContextの構成と拡張の変化（ExtendedCamelContextなど）	12](#3.5-camelcontextの構成と拡張の変化（extendedcamelcontextなど）)
+[✅ \<route\> や \<from\> の uri 属性における厳密な構文チェック	11](#✅-\<route\>-や-\<from\>-の-uri-属性における厳密な構文チェック)
 
-[**第4章：プロジェクトセットアップと構成管理	14**](#第4章：プロジェクトセットアップと構成管理)
+[✅ 対策	11](#✅-対策)
 
-[● 4.1 プロジェクト構成（Maven）	14](#4.1-プロジェクト構成（maven）)
+[● 3.4 ストリームキャッシュとスプール設定	12](#3.4-ストリームキャッシュとスプール設定)
 
-[● 4.2 Spring BootによるCamelContextの起動方法	15](#4.2-spring-bootによるcamelcontextの起動方法)
+[● 3.5 CamelContextの構成と拡張の変化	12](#3.5-camelcontextの構成と拡張の変化)
 
-[● 4.3 Spring XML DSLの読み込みとルート登録	16](#4.3-spring-xml-dslの読み込みとルート登録)
+[Camel 4 における設計変更ポイント	12](#camel-4-における設計変更ポイント)
 
-[XMLファイルの配置	16](#xmlファイルの配置)
+[XML IO DSL での CamelContext 構成例	13](#xml-io-dsl-での-camelcontext-構成例)
 
-[● 4.4 application.propertiesによる構成管理とKarafとの比較	16](#4.4-application.propertiesによる構成管理とkarafとの比較)
+[ポイントまとめ（XML IO DSL の観点）	14](#ポイントまとめ（xml-io-dsl-の観点）)
 
-[代表的な構成ファイル	17](#代表的な構成ファイル)
+[**第4章：プロジェクトセットアップと構成管理	15**](#第4章：プロジェクトセットアップと構成管理)
 
-[設定例	17](#設定例)
+[● 4.1 プロジェクト構成（Maven）	15](#4.1-プロジェクト構成（maven）)
 
-[特徴比較	17](#特徴比較)
+[● 4.2 Spring BootによるCamelContextの起動方法	16](#heading=h.95xpctglbkp8)
 
-[**第5章：ルート開発（XML DSL）	19**](#第5章：ルート開発（xml-dsl）)
+[● 4.3 XML IO DSLの読み込みとルート登録	17](#4.2-xml-io-dslの読み込みとルート登録)
 
-[● 5.1 基本構文と構造	19](#5.1-基本構文と構造)
+[✅ XML IO DSLのルート定義ファイルの配置例	17](#✅-xml-io-dslのルート定義ファイルの配置例)
 
-[最小構成の例	19](#最小構成の例)
+[🔍 注意点（Blueprint DSL との違い）	17](#🔍-注意点（blueprint-dsl-との違い）)
 
-[● 5.2 Karaf Blueprint DSLとの相違点	19](#5.2-karaf-blueprint-dslとの相違点)
+[● 4.4 application.propertiesによる構成管理とKarafとの比較	18](#4.3-application.propertiesによる構成管理とkarafとの比較)
 
-[● 5.3 EIPの使い方と変更点（InOnly削除など）	20](#5.3-eipの使い方と変更点（inonly削除など）)
+[代表的な構成ファイル	18](#代表的な構成ファイル)
 
-[代表的なEIPの例	20](#代表的なeipの例)
+[設定例	18](#設定例)
 
-[変更点：InOnlyの削除	21](#変更点：inonlyの削除)
+[特徴比較	19](#特徴比較)
 
-[● 5.4 errorHandler／onExceptionの定義方法	21](#5.4-errorhandler／onexceptionの定義方法)
+[**第5章：ルート開発（XML DSL）	20**](#第5章：ルート開発（xml-dsl）)
 
-[グローバルエラーハンドラ	21](#グローバルエラーハンドラ)
+[● 5.1 基本構文と構造	20](#5.1-基本構文と構造)
 
-[● 5.5 REST DSLと\<jetty\>等の代替に関する実装注意点	22](#5.5-rest-dslと\<jetty\>等の代替に関する実装注意点)
+[最小構成の例	20](#最小構成の例)
 
-[REST DSLの使用例（XML DSL）	22](#rest-dslの使用例（xml-dsl）)
+[読み込み方法（Spring Boot環境）	20](#読み込み方法（spring-boot環境）)
 
-[注意点	22](#注意点)
+[● 5.2 Karaf Blueprint DSLとの相違点	21](#5.2-karaf-blueprint-dslとの相違点)
 
-[**第6章：テストとトラブルシューティング	24**](#第6章：テストとトラブルシューティング)
+[● 5.3 EIPの使い方と変更点（InOnlyの廃止と属性化）	22](#5.3-eipの使い方と変更点（inonlyの廃止と属性化）)
 
-[● 6.1 camel-test-spring \+ JUnit5 の活用	24](#6.1-camel-test-spring-+-junit5-の活用)
+[代表的なEIPの例	22](#代表的なeipの例)
 
-[依存関係（pom.xml）	24](#依存関係（pom.xml）)
+[変更点：\<inOnly\> / \<inOut\> 要素の削除	22](#変更点：\<inonly\>-/-\<inout\>-要素の削除)
 
-[テスト例	24](#テスト例)
+[✅ 旧（Blueprint DSLやSpring XML DSL）:	22](#✅-旧（blueprint-dslやspring-xml-dsl）:)
 
-[● 6.2 Spring Bootログ構成（access, gc, consoleログなど）	25](#6.2-spring-bootログ構成（access,-gc,-consoleログなど）)
+[移行アドバイス	23](#移行アドバイス)
 
-[標準構成ファイル：logback-spring.xml	25](#標準構成ファイル：logback-spring.xml)
+[● 5.4 errorHandler／onExceptionの定義方法	23](#5.4-errorhandler／onexceptionの定義方法)
 
-[ログ種別と対応表	25](#ログ種別と対応表)
+[✅ グローバルエラーハンドラの定義（XML IO DSL）	23](#✅-グローバルエラーハンドラの定義（xml-io-dsl）)
 
-[● 6.3 Actuatorによるヘルスチェック	26](#6.3-actuatorによるヘルスチェック)
+[✅ onExceptionの定義例	23](#✅-onexceptionの定義例)
 
-[依存追加（pom.xml）	26](#依存追加（pom.xml）)
+[● 5.5 REST DSLと\<jetty\>等の代替に関する実装注意点	25](#5.5-rest-dslと\<jetty\>等の代替に関する実装注意点)
 
-[設定（application.properties）	26](#設定（application.properties）)
+[REST DSLの使用例（XML IO DSL）	25](#rest-dslの使用例（xml-io-dsl）)
 
-[出力例	26](#出力例)
+[注意点	25](#注意点)
 
-[● 6.4 BacklogTracer／Tracerの使い方と変更点	27](#6.4-backlogtracer／tracerの使い方と変更点)
+[**第6章：テストとトラブルシューティング	26**](#第6章：テストとトラブルシューティング)
 
-[BacklogTracer：ルートの「最後のメッセージ」を記録	27](#backlogtracer：ルートの「最後のメッセージ」を記録)
+[● 6.1 camel-test-spring \+ JUnit5 の活用	26](#6.1-camel-test-spring-+-junit5-の活用)
 
-[Tracer：全メッセージの逐次トレース（パフォーマンスへの影響大）	28](#tracer：全メッセージの逐次トレース（パフォーマンスへの影響大）)
+[依存関係（pom.xml）	26](#依存関係（pom.xml）)
 
-[注意点（Camel 4.10での変更）	28](#注意点（camel-4.10での変更）)
+[テスト例	26](#テスト例)
 
-[Spring Bootでの有効化例（application.properties）	28](#spring-bootでの有効化例（application.properties）)
+[● 6.2 Spring Bootログ構成（access, gc, consoleログなど）	27](#6.2-spring-bootログ構成（access,-gc,-consoleログなど）)
 
-[**第7章：運用・監視・ビルド・デプロイ	29**](#第7章：運用・監視・ビルド・デプロイ)
+[標準構成ファイル：logback-spring.xml	27](#標準構成ファイル：logback-spring.xml)
 
-[● 7.1 Fat JARの作成と実行方法	29](#7.1-fat-jarの作成と実行方法)
+[ログ種別と対応表	27](#ログ種別と対応表)
 
-[Fat JAR作成手順（Maven）	29](#fat-jar作成手順（maven）)
+[● 6.3 Actuatorによるヘルスチェック	28](#6.3-actuatorによるヘルスチェック)
 
-[● 7.2 Mavenビルドと依存関係管理	30](#7.2-mavenビルドと依存関係管理)
+[依存追加（pom.xml）	28](#依存追加（pom.xml）)
 
-[依存の定義例（HTTP, CXF, XML DSL）	30](#依存の定義例（http,-cxf,-xml-dsl）)
+[設定（application.yaml）	28](#設定（application.yaml）)
 
-[● 7.3 外部プロパティ管理（ConfigMap非使用前提）	31](#7.3-外部プロパティ管理（configmap非使用前提）)
+[出力例	29](#出力例)
 
-[プロファイルごとのプロパティファイル	31](#プロファイルごとのプロパティファイル)
+[● 6.4 BacklogTracer／Tracerの使い方と変更点	29](#6.4-backlogtracer／tracerの使い方と変更点)
 
-[実行時にプロファイル指定	31](#実行時にプロファイル指定)
+[BacklogTracer：ルートの「最後のメッセージ」を記録	29](#backlogtracer：ルートの「最後のメッセージ」を記録)
 
-[コマンドラインからの上書きも可能	31](#コマンドラインからの上書きも可能)
+[Tracer：全メッセージの逐次トレース（パフォーマンスへの影響大）	30](#tracer：全メッセージの逐次トレース（パフォーマンスへの影響大）)
 
-[● 7.4 JMX監視とHawtIO（Spring Bootでの使い方）	31](#7.4-jmx監視とhawtio（spring-bootでの使い方）)
+[注意点（Camel 4.10での変更）	30](#注意点（camel-4.10での変更）)
 
-[JMX有効化	31](#jmx有効化)
+[Spring Bootでの有効化例（application.properties）	30](#spring-bootでの有効化例（application.properties）)
 
-[HawtIO導入（埋め込み）	32](#hawtio導入（埋め込み）)
+[**第7章：運用・監視・ビルド・デプロイ	31**](#第7章：運用・監視・ビルド・デプロイ)
 
-[**第8章：移行演習	34**](#第8章：移行演習)
+[● 7.1 Fat JARの作成と実行方法	31](#7.1-fat-jarの作成と実行方法)
 
-[● 8.1 Blueprintルート → Spring XML DSLへの変換演習	34](#8.1-blueprintルート-→-spring-xml-dslへの変換演習)
+[Fat JAR作成手順（Maven）	31](#fat-jar作成手順（maven）)
 
-[Blueprint DSL での例（before）	34](#blueprint-dsl-での例（before）)
+[● 7.2 Mavenビルドと依存関係管理	32](#7.2-mavenビルドと依存関係管理)
 
-[Spring XML DSL での例（after）	34](#spring-xml-dsl-での例（after）)
+[依存の定義例（HTTP, CXF, XML DSL）	32](#依存の定義例（http,-cxf,-xml-dsl）)
 
-[変換ポイント	35](#変換ポイント)
+[● 7.3 外部プロパティ管理（ConfigMap非使用前提）	33](#7.3-外部プロパティ管理（configmap非使用前提）)
 
-[● 8.2 cxf: コンポーネントを含むSOAPルートの移行	35](#8.2-cxf:-コンポーネントを含むsoapルートの移行)
+[プロファイルごとのプロパティファイル	33](#プロファイルごとのプロパティファイル)
 
-[Blueprint DSL の例（before）	35](#blueprint-dsl-の例（before）)
+[実行時にプロファイル指定	33](#実行時にプロファイル指定)
 
-[Spring XML DSL の例（after）	36](#spring-xml-dsl-の例（after）)
+[コマンドラインからの上書きも可能	33](#コマンドラインからの上書きも可能)
 
-[注意点	36](#注意点-1)
+[● 7.4 JMX監視とHawtIO（Spring Bootでの使い方）	34](#7.4-jmx監視とhawtio（spring-bootでの使い方）)
 
-[● 8.3 ルーティングとException処理の構造再現演習	37](#8.3-ルーティングとexception処理の構造再現演習)
+[JMX有効化	34](#jmx有効化)
 
-[Blueprint DSL の例（before）	37](#blueprint-dsl-の例（before）-1)
+[HawtIO導入（埋め込み）	34](#hawtio導入（埋め込み）)
 
-[Spring XML DSL の例（after）	37](#spring-xml-dsl-の例（after）-1)
+[**第8章：移行演習	36**](#第8章：移行演習)
 
-[ポイント	37](#ポイント)
+[● 8.1 Blueprintルート → XML IO DSLへの変換演習	36](#8.1-blueprintルート-→-xml-io-dslへの変換演習)
 
-[**第9章：まとめと今後の運用設計	39**](#第9章：まとめと今後の運用設計)
+[Blueprint DSL での例（before）	36](#blueprint-dsl-での例（before）)
 
-[● 9.1 Camel for Spring Bootの導入効果	39](#9.1-camel-for-spring-bootの導入効果)
+[XML IO DSL での例（after）	36](#xml-io-dsl-での例（after）)
 
-[● 9.2 段階的移行戦略（モジュール単位移行、ゼロダウンタイム等）	40](#9.2-段階的移行戦略（モジュール単位移行、ゼロダウンタイム等）)
+[変換ポイント	37](#変換ポイント)
 
-[推奨される段階的移行アプローチ	40](#推奨される段階的移行アプローチ)
+[● 8.2 cxf: コンポーネントを含むSOAPルートの移行	37](#8.2-cxf:-コンポーネントを含むsoapルートの移行)
 
-[● 9.3 継続的改善に向けた運用設計のポイント	40](#9.3-継続的改善に向けた運用設計のポイント)
+[Blueprint DSL の例（before）	37](#blueprint-dsl-の例（before）)
 
-[1\. 監視と可視化の徹底	40](#1.-監視と可視化の徹底)
+[XML IO DSL の例（after）	38](#xml-io-dsl-の例（after）)
 
-[2\. 設定の一元管理	40](#2.-設定の一元管理)
+[🔍 補足と注意点	38](#🔍-補足と注意点)
 
-[3\. CI/CDパイプラインとの統合	41](#3.-ci/cdパイプラインとの統合)
+[● 8.3 ルーティングとException処理の構造再現演習	39](#8.3-ルーティングとexception処理の構造再現演習)
 
-[4\. Camelアップデートと互換性対応	41](#4.-camelアップデートと互換性対応)
+[Blueprint DSL の例（before）	39](#blueprint-dsl-の例（before）-1)
+
+[XML IO DSL の例（after）	39](#xml-io-dsl-の例（after）-1)
+
+[● 🔍 移行ポイント（XML IO DSL向け）	40](#🔍-移行ポイント（xml-io-dsl向け）)
+
+[**第9章：まとめと今後の運用設計	42**](#第9章：まとめと今後の運用設計)
+
+[● 9.1 Camel for Spring Bootの導入効果	42](#9.1-camel-for-spring-bootの導入効果)
+
+[● 9.2 段階的移行戦略（モジュール単位移行、ゼロダウンタイム等）	43](#9.2-段階的移行戦略（モジュール単位移行、ゼロダウンタイム等）)
+
+[推奨される段階的移行アプローチ	43](#推奨される段階的移行アプローチ)
+
+[● 9.3 継続的改善に向けた運用設計のポイント	43](#9.3-継続的改善に向けた運用設計のポイント)
+
+[1\. 可視化と監視の強化	43](#1.-可視化と監視の強化)
+
+[2\. プロパティと機密情報の管理	43](#2.-プロパティと機密情報の管理)
+
+[3\. CI/CDの整備	44](#3.-ci/cdの整備)
+
+[4\. アップグレード対応と技術継承	44](#4.-アップグレード対応と技術継承)
 
 # 
 
@@ -194,7 +216,7 @@
 
 * ## 1.1 本トレーニングの目的と構成 {#1.1-本トレーニングの目的と構成}
 
-本トレーニングの目的は、**Apache Camel 4.10** と **Spring Boot 3.x** をベースにした **Spring XML DSL** によるアプリケーション構築方法を習得し、従来の **Fuse/Karaf（Blueprint DSL）環境からの移行**に必要な知識と実践スキルを身に付けることです。
+本トレーニングの目的は、**Apache Camel 4.10** と **Spring Boot 3.x** をベースにした **XML IO DSL** によるアプリケーション構築方法を習得し、従来の **Fuse/Karaf（Blueprint DSL）環境からの移行**に必要な知識と実践スキルを身に付けることです。
 
 また、KarafからSpring Bootベースへの移行時に遭遇する構成・起動・運用の違いを理解し、Camel 4.x の新機能や変更点に対応できるようになることを目的としています。
 
@@ -204,10 +226,10 @@
 * **第2章**：KarafとSpring Bootの比較と移行観点  
 * **第3章**：Camel 4.10の技術的な変更点  
 * **第4章**：プロジェクトセットアップと構成管理  
-* **第5章**：Spring XML DSLによるルート開発  
+* **第5章**：XML IO DSLによるルート開発  
 * **第6章**：テスト・トラブルシューティング  
 * **第7章**：運用・監視・デプロイ  
-* **第8章**：演習：Blueprint → Spring XML DSLへの移行実践  
+* **第8章**：演習：Blueprint → XML IO DSLへの移行実践  
 * **第9章**：まとめと今後の運用設計
 
 各章では、実践的な構成例やコードスニペットを交え、移行時に特に注意すべき点を重点的に解説します。
@@ -226,12 +248,12 @@
   * Jakarta EE 10対応（`javax.*` → `jakarta.*`）  
   * 自動構成、Spring Actuator、プロファイルなどの運用支援機能
 
-* ### **Spring XML DSL** {#spring-xml-dsl}
+* ### **XML IO DSL** {#xml-io-dsl}
 
-  * Camelルートの記述に `http://camel.apache.org/schema/spring` 名前空間を使用  
-  * Spring ApplicationContextに統合され、Blueprint DSLに類似した宣言的記述が可能  
-  * `<camelContext>`, `<route>`, `<bean>`, `<errorHandler>`, `<onException>` 等の標準要素が利用可能  
-    
+  * Camel ルートの記述には `http://camel.apache.org/schema/io` 名前空間を使用  
+  * Spring ApplicationContext には依存せず、Camel 単体で動作可能な構造（Spring Boot との親和性も高い）  
+  * `<beans>` や `<camel>` タグの中に `<route>`, `<from>`, `<to>`, `<onException>` などの DSL 要素を直接記述可能  
+  * Blueprint DSL よりも軽量で、Camel JBang や Kaoto などのツールと親和性が高い
 
 * ## 1.3 前提知識と学習ゴール {#1.3-前提知識と学習ゴール}
 
@@ -248,8 +270,8 @@
 
 トレーニングの完了時点で、以下の状態に到達していることを目指します：
 
-* Spring Boot上でCamelルートをSpring XML DSLで定義・動作させられる  
-* Blueprint DSLで書かれたルートをSpring XML DSLへ移行できる  
+* Spring Boot上でCamelルートをXML IO DSLで定義・動作させられる  
+* Blueprint DSLで書かれたルートをXML IO DSLへ移行できる  
 * Spring Bootにおける構成・起動・依存解決の方式を理解している  
 * Camelルートの例外処理、プロパティ定義、外部連携を適切に実装・検証できる
 
@@ -260,7 +282,7 @@
 
 # 第2章：KarafとSpring Bootの違いと移行観点 {#第2章：karafとspring-bootの違いと移行観点}
 
-Apache Camelのルートは、Karaf上でもSpring Boot上でも動作しますが、それぞれのプラットフォームはアーキテクチャ的に大きく異なります。本章では、Karaf（OSGiコンテナ）とSpring Bootの構造的な違いを理解した上で、Camel 4.10＋Spring XML DSLへの移行時に考慮すべき要点を解説します。
+Apache Camelのルートは、Karaf上でもSpring Boot上でも動作しますが、それぞれのプラットフォームはアーキテクチャ的に大きく異なります。本章では、Karaf（OSGiコンテナ）とSpring Bootの構造的な違いを理解した上で、Camel 4.10＋XML IO DSLへの移行時に考慮すべき要点を解説します。
 
 * ## 2.1 Karaf（OSGi）とSpring Bootの構造的違い  {#2.1-karaf（osgi）とspring-bootの構造的違い}
 
@@ -271,14 +293,16 @@ Apache Camelのルートは、Karaf上でもSpring Boot上でも動作します�
   **Spring Boot** は、すべての依存JARとアプリケーションコードを1つの**Fat JAR**にビルドし、`java -jar`で実行する**単一プロセス指向**のランタイムです。OSGiのようなバンドル分離やクラスローダ制御は存在せず、クラスパスベースの依存管理が前提です。Fat JARは、すべての依存関係を内包するため、コンテナイメージのビルドを簡素化し、どこでも同じように動作する不変のデプロイ単位を提供します
 
 
-  * ### Blueprint DSL vs Spring XML DSL {#blueprint-dsl-vs-spring-xml-dsl}
+  * ### Blueprint DSL vs XML IO DSL {#blueprint-dsl-vs-xml-io-dsl}
 
-  **Blueprint DSL（Karaf）** は、`http://www.osgi.org/xmlns/blueprint/v1.0.0`名前空間に基づき、CamelルートとJavaBeanを宣言的に記述します。
+  **Blueprint DSL（Karaf）** は、`http://www.osgi.org/xmlns/blueprint/v1.0.0` 名前空間に基づき、CamelルートとJava BeanをOSGi環境向けに宣言的に記述します。OSGiサービス参照やIDベースの依存関係管理が特徴です。
 
-  **Spring XML DSL（Spring Boot）** は、`http://camel.apache.org/schema/spring`名前空間を使用し、CamelルートとBeanをSpring ApplicationContextに統合して定義します。
+  **XML IO DSL（Camel 4以降）** は、`http://camel.apache.org/schema/io` 名前空間を使用し、Camelのルートや設定をSpringやOSGiに依存せず、軽量かつスタンドアロンで定義できます。Camel JBangやKaotoなどツールとの親和性も高く、モダンなDSLです。
 
-  両者は構文が非常に類似しており、構成要素（`<camelContext>`、`<route>`、`<bean>`、`<onException>`など）に共通性がありますが、Spring XML DSLでは**Blueprint特有のID参照方式やOSGiサービス参照**が使用できません。
+  両者は `<route>`, `<from>`, `<to>`, `<onException>` などの構文に共通性がありますが、**Blueprint DSLはOSGi依存型**、**XML IO DSLは非依存かつ軽量構成**という点で異なります。XML IO DSLではBlueprint特有の `<reference>` 要素やサービス参照は使用できません。
 
+
+  
 
   * ### JMX, コンソール, ログ管理の違い {#jmx,-コンソール,-ログ管理の違い}
 
@@ -295,11 +319,17 @@ Apache Camelのルートは、Karaf上でもSpring Boot上でも動作します�
 
 **Spring Boot** では、CamelContextは`@SpringBootApplication`により起動される`SpringApplication.run()`の中でライフサイクルを管理します。
 
-* 起動時に`camel-spring-boot`により自動的にCamelContextがインスタンス化され、Spring XML DSLに定義されたルートが構成に追加されます。
+* `camel-spring-boot` が Spring Boot 起動時に `CamelContext` を自動的に生成します。  
+* `application.yaml` に `camel.main.routesIncludePattern=classpath:routes/*.xml` などと設定することで、`XML IO DSL` 形式で記述されたルート（例: `aggregate-routes.xml`）が CamelContext に直接ロードされます。  
+* Spring ApplicationContext に依存せず、Camel が独自に XML ファイルを解釈してルートを登録します。
+
+📌 **特徴**：Spring に依存しない構造でありながら、Spring Boot の自動構成や依存注入の利便性を享受できます。
 
 * 停止は`Ctrl+C`や`ApplicationContext.close()`により行われ、CamelContextも連動して停止されます。
 
-**起動制御のカスタマイズ**は、Karafではバンドルの状態依存、Spring Bootでは`MainConfiguration`や`CamelContextConfiguration`による明示的な設定が必要になります。
+**起動制御のカスタマイズは、Karaf ではバンドルのアクティベーション状態に依存して自動的に CamelContext が起動します。一方、Spring Boot では \`MainConfiguration\` や \`CamelContextConfiguration\` を使用して、CamelContext の初期化タイミングやルートの登録順などを \*\*明示的に制御\*\*する必要があります。**  
+
+**XML IO DSL を使用する場合も同様に、\`camel.main.\*\` プロパティや \`CamelContextConfiguration\` による制御が推奨されます。**
 
 * ## 2.3 移行時の注意点  {#2.3-移行時の注意点}
 
@@ -339,7 +369,7 @@ Apache Camel 4系は、Camel 3系から大幅な内部構造の見直しとAPI�
 * ## 3.1 Camel 3 → 4 の主な変更点 {#3.1-camel-3-→-4-の主な変更点}
 
 **Blueprint DSLの削除**  
- Camel 4では `http://camel.apache.org/schema/blueprint` 名前空間のDSLが完全に削除されました。Blueprint XMLで構築されたKaraf環境のルートは、**Spring XML DSLまたはJava DSLへの移行が必須**です。
+ Camel 4では `http://camel.apache.org/schema/blueprint` 名前空間のDSLが完全に削除されました。Blueprint XMLで構築されたKaraf環境のルートは、**XML IO DSLまたはJava DSLへの移行が必須**です。
 
 **APIの整理とスリム化**  
  内部APIが整理され、非推奨だった多くのメソッド・インターフェースが削除されました。特に`Exchange.setException(Throwable)`の扱いや、ルート内での型変換の自動化に関する挙動がCamel 3とは異なります。
@@ -362,23 +392,73 @@ Camel 4では、以下のようなコンポーネントが削除されていま�
 | `camel-netty` | `camel-netty4` または `camel-grpc` 等 |
 | `camel-twitter` | REST API を使用して独自実装へ |
 
-Blueprint DSL自体もコンポーネントとして削除されており、ルート定義は `camel-spring-xml` に統一されます。
+Blueprint DSL は Camel 4.x で削除され、ルート定義は Spring Boot 向けの camel-spring-xml または camel-xml-io DSL に移行する必要があります。
 
-✅ **対策**：`pom.xml` にて使用するすべてのコンポーネントを明示的に指定し、Blueprint依存のルートや設定は段階的にSpring XML形式へリファクタリングする必要があります。
+✅ **対策**：`Blueprint DSL に依存したルートや構成（OSGiの参照、ID指定、PropertyPlaceholder など）は、`  
 
-* ## 3.3 XML DSL構文変更（例：`<description>`の属性化など） {#3.3-xml-dsl構文変更（例：<description>の属性化など）}
+`- Spring Boot 上では camel-spring-xml 形式に、または`  
 
-Camel 4では、XML DSLの構文にも以下のような変更があります：
+`- Spring 非依存構成として camel-xml-io DSL に`  
+
+`リファクタリングする必要があります。`
+
+``さらに、camel-xml-io を使う場合は Blueprint/Spring の `bean` 参照が使えないため、`<load-class>`, `<script>`, `<transform>` など XML IO 専用要素による再設計が必要です。``
+
+* ## 3.3 XML IO DSLにおける構文上の変更点（Camel 4） {#3.3-xml-io-dslにおける構文上の変更点（camel-4）}
+
+Camel 4 における XML IO DSL では、Blueprint や Spring XML DSL とは異なる構文上の特徴・制約があります。以下に主な違いを示します：
 
 * `<description>` 要素の記法変更  
-   Camel 3までは `<description>xxx</description>` の形式でしたが、Camel 4では `<description text="xxx"/>` のように属性形式に統一されました。
+   Camel 3 までは `<description>テキスト</description>` の形式でしたが、  
+   **Camel 4 の XML IO DSL では `<description text="テキスト"/>` の属性形式**に統一されています。
 
-* `<bean>` の参照方式の明確化  
-   Blueprint DSLで可能だった `id-ref` 形式は使用できず、`ref="beanName"` に統一されます。
+例（旧）:
 
-* `<route>` や `<from>` 要素内での`uri`属性の記法も一部で厳密化され、スペースや解釈の曖昧さを排除しています。
+```xml
+<description>This route validates data</description>
+```
 
-✅ **対策**：既存のBlueprint DSLをSpring XML DSLに移行する際は、構文チェックとXSDベースのバリデーションを活用することを推奨します。
+例（XML IO DSL）:
+
+```xml
+<description text="This route validates data"/>
+```
+
+---
+
+#### **✅ `<bean>` の利用制限と代替** {#✅-<bean>-の利用制限と代替}
+
+Blueprint DSL で使用されていた `<bean id="x" class="..."/>` や `id-ref` による JavaBean 参照は、  
+ **XML IO DSL では使用できません（Spring非依存構成のため）**。
+
+代替方法としては：
+
+* Java DSL 側で Bean を定義し、必要な処理は Java クラス経由で委譲する
+
+* `process`, `transform`, `script` 等を XML IO DSL 上で使用する
+
+  ---
+
+  #### **✅ `<route>` や `<from>` の `uri` 属性における厳密な構文チェック** {#✅-<route>-や-<from>-の-uri-属性における厳密な構文チェック}
+
+Camel 4 の XML IO DSL では `uri="..."` の属性記法において：
+
+* **空白や不要なクォートの使用が許されず**
+
+* **スペースを含む URI や文字列の扱いに厳格**
+
+となっており、以前の Blueprint DSL や Spring XML DSL よりも構文ミスを検知しやすくなっています。
+
+---
+
+### **✅ 対策** {#✅-対策}
+
+Blueprint DSL から XML IO DSL に移行する場合は：
+
+* `<description>` 記法の変更（要素 → 属性）に対応する  
+* `<bean>` など Spring/Blueprint 固有要素を避けるか、Javaコード側に委譲  
+* XML Schema (XSD) によるバリデーションを活用し、構文の正当性を確保する
+
 
 * ## 3.4 ストリームキャッシュとスプール設定 {#3.4-ストリームキャッシュとスプール設定}
 
@@ -388,27 +468,24 @@ Camel 4では、**大きなメッセージのメモリ圧迫を防ぐための�
 
 * ストリームキャッシュが有効な場合、一定サイズ以上のメッセージはメモリに保持されず、一時ファイルにスプールされます。
 
-設定例（Spring Bootの`application.properties`）：
+設定例（Spring Bootの`application.yaml`）：
 
 ```
-camel.springboot.streamCachingEnabled=true
-camel.springboot.streamCachingSpoolEnabled=true
-camel.springboot.streamCachingSpoolThreshold=4096
+camel:
+  stream-caching:
+    enabled: true
+    spool-enabled: true
+    spool-threshold: 4096
+    spool-directory: /tmp/spool
 ```
 
-また、XML DSL内でも以下のように定義可能です：
+* ## 3.5 CamelContextの構成と拡張の変化 {#3.5-camelcontextの構成と拡張の変化}
 
-```xml
-<camelContext streamCache="true" xmlns="http://camel.apache.org/schema/spring">
-  <streamCaching spoolDirectory="/tmp/spool" spoolThreshold="4096" />
-</camelContext>
-```
+### **Camel 4 における設計変更ポイント** {#camel-4-における設計変更ポイント}
 
-✅ **推奨**：スプール先ディレクトリのマウント領域やパーミッションに注意し、ログ出力でスプール使用量を定期的に確認すること。
+* Camel 4 では、`ExtendedCamelContext` は廃止され、代わりに `CamelContext` インターフェース自体が拡張されました。
 
-* ## 3.5 CamelContextの構成と拡張の変化（ExtendedCamelContextなど） {#3.5-camelcontextの構成と拡張の変化（extendedcamelcontextなど）}
-
-Camel 4では、`ExtendedCamelContext`は廃止され、**CamelContextインターフェース自体が拡張されています**。そのため、従来のように`ExtendedCamelContext`を明示的に取得して設定することは不要です。
+* これにより、従来のように `ExtendedCamelContext` にキャストする必要はなく、**標準の `CamelContext` から直接各種設定が可能**となりました。
 
 例（旧方式）：
 
@@ -423,27 +500,46 @@ ecc.setXXX(...);
 camelContext.setXXX(...);  // CamelContextインターフェースが直接提供
 ```
 
-また、CamelContextの構成要素（TypeConverter、Registry、ComponentResolverなど）はより明確に分離され、プログラム的に構成しやすくなっています。
+### **XML IO DSL での CamelContext 構成例** {#xml-io-dsl-での-camelcontext-構成例}
 
-Spring Bootでは、`CamelContextConfiguration`を使ってBean定義からの拡張が可能です：
+XML IO DSL 環境では、Spring Boot のような Bean 定義による構成拡張は使用しません。代わりに、`application.yaml` や `camel-main` 設定ファイルで CamelContext の振る舞いを制御します。
 
-```java
-@Bean
-CamelContextConfiguration contextConfiguration() {
-  return camelContext -> {
-    camelContext.setStreamCachingStrategy(...);
-  };}
+✅ streamCaching の構成例（application.yaml）：
+
+```
+camel:
+  stream-caching:
+    enabled: true
+    spool-enabled: true
+    spool-threshold: 4096
+    spool-directory: /tmp/spool
 ```
 
-✅ **ポイント**：従来の拡張手法を見直し、`CamelContext`の直接APIかSpring DI経由の構成を採用する。
+✅ XML IO DSL 側（routes ファイル）:
 
-本章では、Camel 4.10における技術的な変更点を整理しました。次章では、Spring BootプロジェクトにおけるCamel構成と、Spring XML DSLのルート定義方法を実践的に解説します。
+```xml
+<routes xmlns="http://camel.apache.org/schema/io"
+        streamCache="true">
+  <route id="example-route">
+    <from uri="timer://foo?period=5000"/>
+    <log message="Streaming Route executed."/>
+  </route>
+</routes>
+```
+
+### **ポイントまとめ（XML IO DSL の観点）** {#ポイントまとめ（xml-io-dsl-の観点）}
+
+* `CamelContext` の拡張は、Java API か `application.yaml` によって制御される。  
+* Spring Boot のような `@Bean` や `CamelContextConfiguration` は使用しない。  
+* XML IO DSL 単体では CamelContext の構成に関わる詳細な設定（stream caching、型変換の優先順位など）は行わず、**Camel Main 側の設定で補完**する。
+
+本章では、Camel 4.10における技術的な変更点を整理しました。次章では、Spring BootプロジェクトにおけるCamel構成と、XML IO DSLのルート定義方法を実践的に解説します。
 
 # 
 
 # 第4章：プロジェクトセットアップと構成管理 {#第4章：プロジェクトセットアップと構成管理}
 
-本章では、Camel 4.10 と Spring Boot 3.x をベースとしたアプリケーションのプロジェクト構成、CamelContext の起動方法、Spring XML DSL の読み込み方法、構成ファイルの扱いについて解説します。Karaf（OSGi）とは異なり、Spring Bootではプロジェクト起動・構成・ルート登録のアプローチが統一されています。
+本章では、Camel 4.10 と Spring Boot 3.x をベースとしたアプリケーションのプロジェクト構成、CamelContext の起動方法、XML IO DSL の読み込み方法、構成ファイルの扱いについて解説します。Karaf（OSGi）とは異なり、Spring Bootではプロジェクト起動・構成・ルート登録のアプローチが統一されています。
 
 * ## 4.1 プロジェクト構成（Maven） {#4.1-プロジェクト構成（maven）}
 
@@ -476,11 +572,13 @@ Camel for Spring Boot プロジェクトは、通常の Spring Boot アプリケ
       <artifactId>camel-spring-boot-starter</artifactId>
     </dependency>
 
-    <!-- XML DSL サポート -->
-    <dependency>
-      <groupId>org.apache.camel.springboot</groupId>
-      <artifactId>camel-spring-boot-xml-starter</artifactId>
-    </dependency>
+<!-- XML IO DSL サポート -->
+<dependency>
+  <groupId>org.apache.camel</groupId>
+  <artifactId>camel-xml-io-dsl</artifactId>
+</dependency>
+
+
 
     <!-- 使用するコンポーネント例（例：HTTP） -->
     <dependency>
@@ -501,58 +599,47 @@ Camel for Spring Boot プロジェクトは、通常の Spring Boot アプリケ
 </project>
 ```
 
-* ## 4.2 Spring BootによるCamelContextの起動方法 {#4.2-spring-bootによるcamelcontextの起動方法}
+* ## 4.2 XML IO DSLの読み込みとルート登録 {#4.2-xml-io-dslの読み込みとルート登録}
 
-Spring Bootでは、`@SpringBootApplication` により `ApplicationContext` が起動され、それに付随して CamelContext も自動的に起動されます。開発者が明示的に CamelContext を生成・起動する必要はありません。
+Karafの Blueprint DSL では `blueprint.xml` に定義することで自動的にルートが読み込まれていましたが、**XML IO DSL** を Spring Boot 環境で使用する場合、**`application.yaml` または `application.properties` によるルートXMLの明示的な指定**が必要です。
 
-```java
-@SpringBootApplication
-public class Application {
-  public static void main(String[] args) {
-    SpringApplication.run(Application.class, args);
-  }
-}
-```
+#### **✅ XML IO DSLのルート定義ファイルの配置例** {#✅-xml-io-dslのルート定義ファイルの配置例}
 
-CamelContextの設定を追加する場合は、`CamelContextConfiguration` を使って以下のように記述します：
-
-```java
-@Bean
-CamelContextConfiguration contextConfiguration() {
-  return camelContext -> {
-    camelContext.setStreamCaching(true);
-    // 必要な設定を追加
-  };
-}
-```
-
-* ## 4.3 Spring XML DSLの読み込みとルート登録 {#4.3-spring-xml-dslの読み込みとルート登録}
-
-Karafの Blueprint DSL では `blueprint.xml` に定義することで自動的にルートが読み込まれていましたが、Spring Boot では `resources` 配下に配置された XML ファイルを自動でスキャンして読み込む形になります。
-
-#### **XMLファイルの配置** {#xmlファイルの配置}
-
-以下のようなXMLを `src/main/resources/camel/routes.xml` に配置します：
+以下のような XML ファイルを `src/main/resources/routes/my-routes.xml` に配置します：
 
 ```xml
-<routes xmlns="http://camel.apache.org/schema/spring">
+<routes xmlns="http://camel.apache.org/schema/io">
   <route id="example-route">
     <from uri="timer:foo?period=5s"/>
     <setBody>
-      <constant>Hello Camel 4.10</constant>
+      <constant>Hello Camel 4.10 (IO DSL)</constant>
     </setBody>
     <log message="Received: ${body}"/>
   </route>
 </routes>
 ```
 
-`application.properties` による有効化（詳細は次節）
+`✅ application.yaml によるルートの有効化`
 
 ```
-camel.springboot.xmlRoutes=classpath:camel/routes.xml
+camel:
+  xml-routes:
+    paths: classpath:routes/my-routes.xml
 ```
 
-* ## 4.4 `application.properties`による構成管理とKarafとの比較 {#4.4-application.propertiesによる構成管理とkarafとの比較}
+#### **🔍 注意点（Blueprint DSL との違い）** {#🔍-注意点（blueprint-dsl-との違い）}
+
+| 比較項目 | Blueprint DSL（Karaf） | XML IO DSL（Spring Boot） |
+| ----- | ----- | ----- |
+| ルートの読み込み | 自動（blueprint.xml） | 明示的にプロパティで指定 |
+| 名前空間 | `http://www.osgi.org/xmlns/blueprint/v1.0.0` | `http://camel.apache.org/schema/io` |
+| Bean参照 | OSGiサービスも利用可能 | Java DSL や DI 経由での連携が必要 |
+
+---
+
+このように、**XML IO DSLでは application.yaml/properties による明示的指定が必須**であり、Blueprint DSLのような自動読み込みとは異なる点に注意してください。
+
+* ## 4.3 `application.properties`による構成管理とKarafとの比較 {#4.3-application.propertiesによる構成管理とkarafとの比較}
 
 Karaf環境では、構成管理は以下のような形で分散されていました：
 
@@ -571,17 +658,15 @@ Karaf環境では、構成管理は以下のような形で分散されていま
 #### **設定例** {#設定例}
 
 ```
-# Camel XML DSL ルート読み込み
-camel.springboot.xmlRoutes=classpath:camel/routes.xml
+camel:
+  xml-routes:
+    paths: classpath:routes/my-routes.xml
+  springboot:
+    streamCachingEnabled: true
+    name: camel-springboot-app
 
-# ストリームキャッシュの有効化
-camel.springboot.streamCachingEnabled=true
-
-# コンテキスト名の定義
-camel.springboot.name=camel-springboot-app
-
-# Spring Bootのサーバ設定
-server.port=8080
+server:
+  port: 8080
 ```
 
 #### **特徴比較** {#特徴比較}
@@ -594,7 +679,7 @@ server.port=8080
 | 複数設定の管理 | Feature定義、フラグメントバンドル | プロファイル別設定ファイル |
 
 この章では、Spring Boot上でのCamelアプリケーションのセットアップ手順、XML DSLルートの登録方法、Karaf環境からの構成管理の移行方法を整理しました。  
- 次章では、Spring XML DSLでのルート定義方法や主要EIPの記述方法について詳しく解説します。
+ 次章では、XML IO DSLでのルート定義方法や主要EIPの記述方法について詳しく解説します。
 
 ---
 
@@ -602,90 +687,119 @@ server.port=8080
 
 # 第5章：ルート開発（XML DSL） {#第5章：ルート開発（xml-dsl）}
 
-本章では、Camel 4.10においてSpring XML DSL（`http://camel.apache.org/schema/spring`）を使用してルートを定義する方法について解説します。特にKaraf環境で使用されていたBlueprint DSLとの違いや、EIP（エンタープライズ統合パターン）の記述方式の変化、例外処理やREST定義の実装注意点に焦点を当てます。
+本章では、Camel 4.10 において **XML IO DSL（http://camel.apache.org/schema/io）** を使用してルートを定義する方法について解説します。特に Karaf 環境で使用されていた **Blueprint DSL** との違いや、**EIP（エンタープライズ統合パターン）** の記述方式の変化、**例外処理や REST 定義の実装上の注意点** に焦点を当てます。
 
 * ## 5.1 基本構文と構造 {#5.1-基本構文と構造}
 
-Spring XML DSLでは、Camelのルートは`<camelContext>`の中に`<route>`を定義することで記述されます。
+**XML IO DSL** では、Camel のルートは `<routes>` 要素の中に `<route>` を記述することで構成されます。Spring に依存しない構造で、Camel JBang や Spring Boot などのランタイムに直接ロードされます。
 
 #### **最小構成の例** {#最小構成の例}
 
 ```xml
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:camel="http://camel.apache.org/schema/spring"
-       xsi:schemaLocation="
-        http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-        http://camel.apache.org/schema/spring https://camel.apache.org/schema/spring/camel-spring.xsd">
-
-  <camel:camelContext id="camelContext">
-    <camel:route id="hello-route">
-      <camel:from uri="timer:hello?period=5s"/>
-      <camel:setBody>
-        <camel:constant>Hello from Camel XML DSL</camel:constant>
-      </camel:setBody>
-      <camel:log message="Message: ${body}"/>
-    </camel:route>
-  </camel:camelContext>
-</beans>
+<routes xmlns="http://camel.apache.org/schema/io">
+  <route id="hello-route">
+    <from uri="timer:hello?period=5s"/>
+    <setBody>
+      <constant>Hello from Camel XML IO DSL</constant>
+    </setBody>
+    <log message="Message: ${body}"/>
+  </route>
+</routes>
 ```
 
-構成ファイルは `application.properties` で `camel.springboot.xmlRoutes` に登録することで自動的に読み込まれます。
+#### **読み込み方法（Spring Boot環境）** {#読み込み方法（spring-boot環境）}
+
+この XML ファイル（例: routes/hello-route.xml）を src/main/resources 配下に配置し、application.yaml または application.properties に以下を設定することで自動的に読み込まれます：
+
+```
+camel:
+  xml-routes:
+    paths: classpath:routes/hello-route.xml
+```
+
+✅ `application.yaml` を使用して XML IO DSL を読み込む際には、`camel-xml-io-dsl` の依存が POM に含まれていることを確認してください。
 
 * ## 5.2 Karaf Blueprint DSLとの相違点 {#5.2-karaf-blueprint-dslとの相違点}
 
-Spring XML DSLとBlueprint DSLは構文が似ているため、移行は比較的スムーズです。ただし、以下の点に注意が必要です：
+**XML IO DSL** は Camel 4 で推奨される新しい記法であり、Blueprint DSL と構文的に似ているため移行は比較的スムーズですが、以下の点に注意が必要です。
 
-| 比較項目 | Karaf Blueprint DSL | Spring XML DSL |
+| 比較項目 | Karaf Blueprint DSL | XML IO DSL |
 | ----- | ----- | ----- |
-| 名前空間 | `http://camel.apache.org/schema/blueprint` | `http://camel.apache.org/schema/spring` |
-| コンテキストルート定義 | `<camelContext id="...">` | `<camelContext id="..." xmlns="camel">` |
-| Bean定義 | OSGi参照（`<reference interface="..."/>`など） | Spring Beans（`<bean class="..."/>`） |
-| Property参照 | `<property-placeholder>`（Blueprint定義） | Spring Boot標準の構成管理を使用 |
-| OSGiサービス利用 | `<reference>`でOSGiサービス参照が可能 | Spring DIのみ利用可能 |
+| 名前空間 | `http://camel.apache.org/schema/blueprint` | `http://camel.apache.org/schema/io` |
+| コンテキストルート定義 | `<camelContext id="...">` | `<routes>` タグ内に `<route>` を直接記述 |
+| Bean定義 | OSGi参照（`<reference interface="..."/>` など） | 明示的な Spring 連携なし。Java定義の Bean を `ref` で参照 |
+| Property参照 | `<property-placeholder>`（Blueprint構文） | Spring Boot の `application.yaml` 等により制御可能 |
+| OSGiサービス利用 | `<reference>` による OSGiサービス参照が可能 | OSGiに依存せず、SpringコンテキストまたはCamel DIのみ対応 |
 
-Blueprint固有の構文やOSGi依存のサービス参照は、すべてSpringコンテキストベースに書き換える必要があります。
+Blueprint 固有の構文（例：`<reference>` や OSGiのサービスバインディング）は XML IO DSL ではサポートされておらず、**CamelContext 単体で完結するシンプルな構成に置き換える必要があります**。
 
-* ## 5.3 EIPの使い方と変更点（InOnly削除など） {#5.3-eipの使い方と変更点（inonly削除など）}
+✅ **ポイント**：
 
-Camel 4では一部EIPの仕様や記法が変更されています。
+* Blueprint DSL → XML IO DSL への移行では、OSGi 依存部分をすべて削除またはSpring Boot構成に変換。
+
+* XML IO DSL は Camel の組込みDIとルート定義に特化しており、ランタイムに依存しない構成が可能です（Camel JBang / camel-main / Spring Boot いずれにも対応）。
+
+* ## 5.3 EIPの使い方と変更点（InOnlyの廃止と属性化） {#5.3-eipの使い方と変更点（inonlyの廃止と属性化）}
+
+Camel 4 では、XML IO DSL を用いた EIP（Enterprise Integration Pattern）の定義において、いくつかの構文変更が導入されています。
 
 #### **代表的なEIPの例** {#代表的なeipの例}
 
 ```xml
-<route id="content-based-router">
-  <from uri="direct:start"/>
-  <choice>
-    <when>
-      <simple>${body} contains 'Camel'</simple>
-      <to uri="log:camel"/>
-    </when>
-    <otherwise>
-      <to uri="log:other"/>
-    </otherwise>
-  </choice>
-</route>
+<routes xmlns="http://camel.apache.org/schema/io">
+  <route id="content-based-router">
+    <from uri="direct:start"/>
+    <choice>
+      <when>
+        <simple>${body} contains 'Camel'</simple>
+        <to uri="log:camel"/>
+      </when>
+      <otherwise>
+        <to uri="log:other"/>
+      </otherwise>
+    </choice>
+  </route>
+</routes>
 ```
 
-#### **変更点：InOnlyの削除** {#変更点：inonlyの削除}
+#### **変更点：`<inOnly>` / `<inOut>` 要素の削除** {#変更点：<inonly>-/-<inout>-要素の削除}
 
-Camel 4.10では `<inOnly>` および `<inOut>` 要素は **XML DSLから削除**され、代わりに `<exchangePattern pattern="InOnly"/>` 属性を使用する必要があります。
+Camel 4.10 以降、`<inOnly>` および `<inOut>` 要素は **XML IO DSL では非サポート** となり、代わりに `<to>` 要素に `pattern` 属性を付与する方法へ移行されました。
 
-例（InOnlyの代替）：
+##### **✅ 旧（Blueprint DSLやSpring XML DSL）:** {#✅-旧（blueprint-dslやspring-xml-dsl）:}
+
+```xml
+<inOnly uri="seda:asyncQueue"/>
+```
+
+✅ 新（XML IO DSL）:
 
 ```xml
 <to uri="seda:asyncQueue" pattern="InOnly"/>
 ```
 
-✅ Blueprint XMLで `<inOnly>` を使っていた場合は、`<to>` 要素に `pattern="InOnly"` を付与するように変換してください。
+この変更により、**ExchangePattern の設定はすべて `<to>` の属性で明示**する必要があります。
+
+#### **移行アドバイス** {#移行アドバイス}
+
+Blueprint DSL や Spring XML DSL で `<inOnly>` / `<inOut>` を使っていたルートは、XML IO DSL に移行する際にはすべて以下のように変換してください：
+
+* `<inOnly uri="..."/>` → `<to uri="..." pattern="InOnly"/>`  
+* `<inOut uri="..."/>` → `<to uri="..." pattern="InOut"/>`
+
+✅ **ポイント**：
+
+* Camel 4 の XML IO DSL では、構文の一貫性とシンプルさが重視され、要素ではなく属性による制御に移行。  
+* 記法変更により、ExchangePattern を XML構文上でも統一的に管理可能となります。
 
 * ## 5.4 errorHandler／onExceptionの定義方法 {#5.4-errorhandler／onexceptionの定義方法}
 
-Camelでは、例外処理をルートごとまたはグローバルに定義できます。
+Camelでは、XML IO DSLを用いて、グローバルまたはルート単位での例外処理を柔軟に定義できます。
 
-#### **グローバルエラーハンドラ** {#グローバルエラーハンドラ}
+#### **✅ グローバルエラーハンドラの定義（XML IO DSL）** {#✅-グローバルエラーハンドラの定義（xml-io-dsl）}
 
 ```xml
-<camelContext id="ctx" xmlns="http://camel.apache.org/schema/spring">
+<routes xmlns="http://camel.apache.org/schema/io">
   <errorHandler id="defaultErrorHandler" type="DefaultErrorHandler">
     <redeliveryPolicy maximumRedeliveries="3" redeliveryDelay="2000"/>
   </errorHandler>
@@ -694,47 +808,76 @@ Camelでは、例外処理をルートごとまたはグローバルに定義で
     <from uri="direct:start"/>
     <to uri="bean:someProcessor"/>
   </route>
-</camelContext>
+</routes>
 ```
 
-onExceptionの例
+* `errorHandler` 要素は `<routes>` の直下に定義します。  
+* `type` 属性で使用するエラーハンドラの種類を指定できます（例: `DefaultErrorHandler`, `DeadLetterChannel`, `NoErrorHandler` など）。  
+* `redeliveryPolicy` を組み込むことで再送制御も可能です。
+
+#### ✅ onExceptionの定義例 {#✅-onexceptionの定義例}
 
 ```xml
-<onException>
-  <exception>java.lang.Exception</exception>
-  <handled>
-    <constant>true</constant>
-  </handled>
-  <log message="Exception occurred: ${exception.message}"/>
-  <setBody>
-    <simple>Error: ${exception.message}</simple>
-  </setBody>
-</onException>
+<routes xmlns="http://camel.apache.org/schema/io">
+  <onException>
+    <exception>java.lang.Exception</exception>
+    <handled>
+      <constant>true</constant>
+    </handled>
+    <log message="Exception occurred: ${exception.message}"/>
+    <setBody>
+      <simple>Error: ${exception.message}</simple>
+    </setBody>
+  </onException>
+
+  <route id="example">
+    <from uri="direct:start"/>
+    <to uri="bean:someProcessor"/>
+  </route>
+</routes>
 ```
 
-✅ `handled` や `continued` は Camel 4でも利用可能で、より柔軟なフロー制御が可能です。
+* `<onException>` も `<routes>` の直下に記述します。  
+* `handled` に `true` を設定することで、例外を捕捉してルートを継続させることができます。  
+* `continued` を使えば、例外はログに記録されるものの、ルート処理を続行可能です。
+
+✅ **補足ポイント**：
+
+| 機能 | 説明 |
+| ----- | ----- |
+| `<errorHandler>` | 全ルート共通のエラーハンドリング設定 |
+| `<onException>` | 特定の例外クラスに対応する個別の処理ロジック |
+| `handled` / `continued` | Camel 4でも引き続き利用可能で、フロー制御の柔軟性が向上 |
+
+---
+
+💡 Blueprint DSL では `<camelContext>` 直下に定義していましたが、**XML IO DSLでは `<routes>` 直下に統一**されています。構文上の違いに注意してください。
 
 * ## 5.5 REST DSLと`<jetty>`等の代替に関する実装注意点 {#5.5-rest-dslと<jetty>等の代替に関する実装注意点}
 
 Camel 4.10では、Karafで使用されていた `<jetty>` コンポーネントや `<servlet>` コンポーネントは削除または非推奨になっており、代替として **Spring Bootの組み込みサーバ（Tomcatなど）** や REST DSL を使用します。
 
-#### **REST DSLの使用例（XML DSL）** {#rest-dslの使用例（xml-dsl）}
+#### **REST DSLの使用例（XML IO DSL）** {#rest-dslの使用例（xml-io-dsl）}
 
 ```xml
-<restConfiguration component="servlet" port="8080"/>
+<routes xmlns="http://camel.apache.org/schema/io">
 
-<rest path="/hello">
-  <get uri="/{name}">
-    <to uri="direct:sayHello"/>
-  </get>
-</rest>
+  <restConfiguration component="platform-http" port="8080"/>
 
-<route id="say-hello-route">
-  <from uri="direct:sayHello"/>
-  <setBody>
-    <simple>Hello, ${header.name}!</simple>
-  </setBody>
-</route>
+  <rest path="/hello">
+    <get uri="/{name}">
+      <to uri="direct:sayHello"/>
+    </get>
+  </rest>
+
+  <route id="say-hello-route">
+    <from uri="direct:sayHello"/>
+    <setBody>
+      <simple>Hello, ${header.name}!</simple>
+    </setBody>
+  </route>
+
+</routes>
 ```
 
 #### **注意点** {#注意点}
@@ -746,9 +889,7 @@ Camel 4.10では、Karafで使用されていた `<jetty>` コンポーネント
 
 ---
 
-この章では、Camel 4.10におけるSpring XML DSLによるルート開発の基本、Blueprintからの差異、主要EIPの書き方、例外処理の定義方法、RESTの構築方法について解説しました。次章では、ルートのテスト、ログ出力、トラブルシュートの方法に進みます。
-
-# 
+この章では、Camel 4.10における XML IO DSLによるルート開発の基本、Blueprintからの差異、主要EIPの書き方、例外処理の定義方法、RESTの構築方法について解説しました。次章では、ルートのテスト、ログ出力、トラブルシュートの方法に進みます。
 
 # 第6章：テストとトラブルシューティング {#第6章：テストとトラブルシューティング}
 
@@ -839,11 +980,17 @@ Spring Bootでは、`spring-boot-starter-actuator` を導入することで `/ac
 </dependency>
 ```
 
-#### **設定（application.properties）** {#設定（application.properties）}
+#### **設定（application.yaml）** {#設定（application.yaml）}
 
 ```
-management.endpoints.web.exposure.include=health,info
-management.endpoint.health.show-details=always
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
 ```
 
 #### **出力例** {#出力例}
@@ -897,15 +1044,15 @@ camelContext.addInterceptStrategy(tracer);
 #### **Spring Bootでの有効化例（application.properties）** {#spring-bootでの有効化例（application.properties）}
 
 ```
-camel.springboot.backlogTracerEnabled=true
-camel.springboot.backlogTracerBacklogSize=200
+camel:
+  springboot:
+    backlogTracerEnabled: true
+    backlogTracerBacklogSize: 200
 ```
 
 ✅ トレースはユニットテストやPoC検証時に有効。運用ではActuatorやログでの代替監視を推奨。
 
 この章では、Camel for Spring Bootにおけるテスト実装、ログ管理、ヘルスチェック、ルートトレースの手法を整理しました。次章では、アプリケーションのビルド、実行、運用監視に関する具体的な手順と推奨設定を解説します。
-
-# 
 
 # 第7章：運用・監視・ビルド・デプロイ {#第7章：運用・監視・ビルド・デプロイ}
 
@@ -952,14 +1099,19 @@ Camel 4.10では、コンポーネントベースでの依存管理が徹底さ�
 
 ```xml
 <dependencies>
+  <!-- Camel Spring Boot エンジン -->
   <dependency>
     <groupId>org.apache.camel.springboot</groupId>
     <artifactId>camel-spring-boot-starter</artifactId>
   </dependency>
+
+  <!-- XML IO DSL 用ライブラリ -->
   <dependency>
-    <groupId>org.apache.camel.springboot</groupId>
-    <artifactId>camel-spring-xml-starter</artifactId>
+    <groupId>org.apache.camel</groupId>
+    <artifactId>camel-xml-io-dsl</artifactId>
   </dependency>
+
+  <!-- 必要なコンポーネント -->
   <dependency>
     <groupId>org.apache.camel.springboot</groupId>
     <artifactId>camel-http-starter</artifactId>
@@ -980,15 +1132,29 @@ Spring Bootでは、環境ごとに設定ファイルを分けることができ
 #### **プロファイルごとのプロパティファイル** {#プロファイルごとのプロパティファイル}
 
 ```
-# application-dev.properties
-server.port=8081
-camel.springboot.name=camel-app-dev
+# application-dev.yaml
+spring:
+  config:
+    activate:
+      on-profile: dev
+server:
+  port: 8081
+camel:
+  springboot:
+    name: camel-app-dev
 ```
 
 ```
-# application-prod.properties
-server.port=8080
-camel.springboot.name=camel-app-prod
+# application-prod.yaml
+spring:
+  config:
+    activate:
+      on-profile: prod
+server:
+  port: 8080
+camel:
+  springboot:
+    name: camel-app-prod
 ```
 
 #### **実行時にプロファイル指定** {#実行時にプロファイル指定}
@@ -1011,11 +1177,15 @@ KarafではJMXおよびKaraf Console経由でのルート監視が一般的で�
 
 #### **JMX有効化** {#jmx有効化}
 
-`application.properties` に以下を追加：
+`application.yaml` に以下を追加：
 
 ```
-spring.jmx.enabled=true
-camel.springboot.jmxEnabled=true
+spring:
+  jmx:
+    enabled: true
+camel:
+  springboot:
+    jmxEnabled: true
 ```
 
 JMXを有効化すると、`jconsole` や `VisualVM` で CamelContext、ルート、プロセッサなどのメトリクスを確認可能になります。
@@ -1032,12 +1202,18 @@ JMXを有効化すると、`jconsole` や `VisualVM` で CamelContext、ルー�
 </dependency>
 ```
 
-2. `application.properties` 設定例：
+2. `application.yaml` 設定例：
 
 ```
-hawtio.authenticationEnabled=false
-hawtio.proxyAllowed=true
-management.endpoints.web.exposure.include=*
+hawtio:
+  authenticationEnabled: false
+  proxyAllowed: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
 ```
 
 3. アクセス方法：
@@ -1053,15 +1229,15 @@ http://localhost:8080/hawtio
 ---
 
 この章では、Camel for Spring Bootアプリケーションのビルド方法（fat JAR）、構成管理、JMX・HawtIOを活用した監視・運用管理の方法について解説しました。  
- 次章では、Blueprint DSLからSpring XML DSLへの実践的な移行演習に進みます。
+ 次章では、Blueprint DSLから XML IO DSLへの実践的な移行演習に進みます。
 
 # 
 
 # 第8章：移行演習 {#第8章：移行演習}
 
-本章では、Karaf環境で作成されたBlueprint DSLベースのCamelルートを、Camel 4.10＋Spring Boot 3.x環境で動作する**Spring XML DSL**へ変換する演習を通じて、実践的な移行スキルを養います。特に、`<cxf:cxfEndpoint>` を含むSOAPルートや、例外処理付きのルート構造再現を中心に解説します。
+本章では、Karaf環境で作成されたBlueprint DSLベースのCamelルートを、Camel 4.10＋Spring Boot 3.x環境で動作する**XML IO DSL**へ変換する演習を通じて、実践的な移行スキルを養います。特に、`<cxf:cxfEndpoint>` を含むSOAPルートや、例外処理付きのルート構造再現を中心に解説します。
 
-* ## 8.1 Blueprintルート → Spring XML DSLへの変換演習 {#8.1-blueprintルート-→-spring-xml-dslへの変換演習}
+* ## 8.1 Blueprintルート → XML IO DSLへの変換演習 {#8.1-blueprintルート-→-xml-io-dslへの変換演習}
 
 #### **Blueprint DSL での例（before）** {#blueprint-dsl-での例（before）}
 
@@ -1081,66 +1257,68 @@ http://localhost:8080/hawtio
 </blueprint>
 ```
 
-#### **Spring XML DSL での例（after）** {#spring-xml-dsl-での例（after）}
+#### **XML IO DSL での例（after）** {#xml-io-dsl-での例（after）}
 
 ```xml
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:camel="http://camel.apache.org/schema/spring"
-       xsi:schemaLocation="
-         http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-         http://camel.apache.org/schema/spring https://camel.apache.org/schema/spring/camel-spring.xsd">
-
-  <camel:camelContext id="ctx">
-    <camel:route id="sample-route">
-      <camel:from uri="direct:start"/>
-      <camel:setBody>
-        <camel:constant>Hello Spring DSL</camel:constant>
-      </camel:setBody>
-      <camel:to uri="log:result"/>
-    </camel:route>
-  </camel:camelContext>
-</beans>
+<routes xmlns="http://camel.apache.org/schema/xmlio">
+  <route id="sample-route">
+    <from uri="direct:start"/>
+    <setBody>
+      <constant>Hello Blueprint</constant>
+    </setBody>
+    <to uri="log:result"/>
+  </route>
+</routes>
 ```
 
 #### **変換ポイント** {#変換ポイント}
 
-| 要素 | Blueprint | Spring XML DSL |
+| 項目 | Blueprint DSL | XML IO DSL（Camel 4） |
 | ----- | ----- | ----- |
-| 名前空間 | `schema/blueprint` | `schema/spring` |
-| `camelContext`配置 | `<blueprint>`タグ配下 | `<beans>`タグ配下 |
-| DI（Bean定義） | OSGi `<reference>` 等 | Spring `<bean>` |
+| **名前空間** | `http://camel.apache.org/schema/blueprint` | `http://camel.apache.org/schema/xmlio` |
+| **ルート配置** | `<camelContext>` を `<blueprint>` 配下に配置 | `<routes>` がルート定義のトップレベル |
+| **DI構文** | `<reference>` による OSGi サービス参照 | Bean定義はJavaコードまたは外部DI（Spring Boot等）に依存 |
+| **CamelContext定義** | `<camelContext>` 要素あり（明示的） | `<routes>` が CamelContext に直接バインドされる |
+| **property読み込み** | `<property-placeholder>` 要素で設定 | DSL内では非対応（外部設定：application.yaml 等） |
+| **XSD/Schema構文** | Blueprint用の XSD を使用 | `camel-xml-io.xsd` に準拠 |
 
-✅ Blueprint特有の構文（`<reference>`, `<property-placeholder>`）は削除し、Spring標準構文で置き換える必要があります。
+✅ **補足ポイント**：
+
+* XML IO DSL では `camelContext` タグは不要で、ルートは `<routes>` 配下に直接記述されます。  
+* DI（依存性注入）は、Blueprintの `<reference>` とは異なり、Camel XML IO DSL には存在せず、代わりに Spring Boot 側の Bean 定義に委ねられます。  
+* 設定プロパティ（`property-placeholder` 相当）は、application.yaml/properties などの外部ファイルで定義します。  
+* CamelContext の設定や onException、errorHandler なども `<routes>` 内で定義可能です。
 
 * ## 8.2 `cxf:` コンポーネントを含むSOAPルートの移行 {#8.2-cxf:-コンポーネントを含むsoapルートの移行}
 
-KarafでCXFを使っていたルートも、Camel 4.10 \+ Spring Boot環境では `camel-cxf-starter` により同様に実現可能です。
+Karafで `cxf:` を使っていたSOAPルートは、Camel 4.10 \+ Spring Boot 環境においても `camel-cxf-starter` と `camel-xml-io-dsl` を利用することで移行可能です。。
 
 #### **Blueprint DSL の例（before）** {#blueprint-dsl-の例（before）}
 
 ```xml
-<camel:route id="soapRoute">
+<camel:route id="soapRoute" xmlns:camel="http://camel.apache.org/schema/blueprint">
   <camel:from uri="cxf:/hello?serviceClass=com.example.HelloService"/>
   <camel:to uri="bean:helloProcessor"/>
 </camel:route>
 ```
 
-#### **Spring XML DSL の例（after）** {#spring-xml-dsl-の例（after）}
+#### **XML IO DSL の例（after）** {#xml-io-dsl-の例（after）}
 
 ```xml
-<camelContext xmlns="http://camel.apache.org/schema/spring">
+<routes xmlns="http://camel.apache.org/schema/xmlio">
   <route id="soapRoute">
     <from uri="cxf:/hello?serviceClass=com.example.HelloService"/>
     <to uri="bean:helloProcessor"/>
   </route>
-</camelContext>
+</routes>
 ```
 
-#### **注意点** {#注意点-1}
+#### **🔍 補足と注意点** {#🔍-補足と注意点}
 
-* Blueprint用の `<cxf:cxfEndpoint>` 定義は不要。Spring DSLではURI直書きが可能です。  
-* 必要に応じて、JAX-WSアノテーションを付与した `HelloService` インターフェースを `serviceClass` に指定します。  
-* `camel-cxf-starter` 依存を `pom.xml` に必ず追加する必要があります。
+* cxf:/hello のように URIベースで直接定義可能。  
+* Blueprint DSLで用いていた \<cxf:cxfEndpoint\> 要素は不要。  
+* serviceClass には JAX-WS アノテーションを付与したインターフェースを指定。  
+* camel-cxf-starter を pom.xml に追加する必要があります。
 
 ```xml
 <dependency>
@@ -1149,11 +1327,11 @@ KarafでCXFを使っていたルートも、Camel 4.10 \+ Spring Boot環境で�
 </dependency>
 ```
 
-✅ Spring Boot \+ Camel 4 でも `cxf:` は引き続き利用可能で、Blueprintからの移行が容易です。
+✅ **Camel 4 \+ Spring Boot \+ XML IO DSL** 環境でも `cxf:` は引き続き利用可能です。Blueprint DSL からの移行も比較的簡単に実現できます。必要に応じて `application.yaml` でJMXやログ、エンドポイントの調整を行ってください。
 
 * ## 8.3 ルーティングとException処理の構造再現演習 {#8.3-ルーティングとexception処理の構造再現演習}
 
-Camel ルートの移行では、ルーティングだけでなく `onException` による例外処理構造も重要です。
+Camel ルートの移行では、ルーティングだけでなく `<onException>` による例外処理構造も重要です。XML IO DSL を使用することで、Blueprint DSL と同様の例外ハンドリング構造を再現できます。
 
 #### **Blueprint DSL の例（before）** {#blueprint-dsl-の例（before）-1}
 
@@ -1173,10 +1351,11 @@ Camel ルートの移行では、ルーティングだけでなく `onException`
 </route>
 ```
 
-#### **Spring XML DSL の例（after）** {#spring-xml-dsl-の例（after）-1}
+#### **XML IO DSL の例（after）** {#xml-io-dsl-の例（after）-1}
 
 ```xml
-<camelContext xmlns="http://camel.apache.org/schema/spring">
+<routes xmlns="http://camel.apache.org/schema/xmlio">
+
   <onException>
     <exception>java.lang.Exception</exception>
     <handled>
@@ -1190,24 +1369,30 @@ Camel ルートの移行では、ルーティングだけでなく `onException`
     <to uri="bean:faultyProcessor"/>
     <to uri="log:success"/>
   </route>
-</camelContext>
+
+</routes>
 ```
 
-#### **ポイント** {#ポイント}
+* ### **🔍 移行ポイント（XML IO DSL向け）** {#🔍-移行ポイント（xml-io-dsl向け）}
 
-* `onException` の構文・機能は Blueprint とほぼ同一。  
-* Camel 4 では `DefaultErrorHandler` の構成やリトライ設定も併用可能。  
-* Beanの DI やメソッド参照は Spring標準構文に従う（例：`<bean id="faultyProcessor" class="..."/>`）
+| 項目 | 説明 |
+| ----- | ----- |
+| `<onException>` | Blueprint DSL と構文は共通で、XML IO DSL でもほぼそのまま利用可能です。 |
+| `<routes>` ルート定義 | `camelContext` の代わりに `<routes xmlns="http://camel.apache.org/schema/xmlio">` を使用します。 |
+| DIの構文 | `bean:` URIで呼び出されるクラスは、Spring Boot 側のコンテキストまたは手動登録で解決されます。 |
+| Camel 4の補足 | `DefaultErrorHandler` や `retryWhile` など、より強力な例外処理構成が利用可能です。 |
+
+✅ **XML IO DSL** では、Karaf Blueprint DSL と同様の `<onException>` 構造がサポートされています。Camel 4 でのマイグレーション時は、ルート本体とあわせて例外処理の再現性も検証してください。
 
 ---
 
-この章では、Blueprint DSL で作成されたルートを Spring XML DSL に移行する実践演習を通じて、構文変換・依存関係・ルート設計の再現方法を習得しました。最終章では、Camel for Spring Boot を本番運用する際の設計上のベストプラクティスをまとめます。
+この章では、Blueprint DSL で作成されたルートを XML IO DSL に移行する実践演習を通じて、構文変換・依存関係・ルート設計の再現方法を習得しました。最終章では、Camel for Spring Boot を本番運用する際の設計上のベストプラクティスをまとめます。
 
 # 
 
 # 第9章：まとめと今後の運用設計 {#第9章：まとめと今後の運用設計}
 
-本章では、Camel 4.10 \+ Spring Boot \+ Spring XML DSLを導入することで得られるメリットを再確認するとともに、Karaf環境からの移行を段階的に進めるための戦略、そして移行後の継続的な改善・運用を実現するための設計ポイントについてまとめます。
+本章では、Camel 4.10 \+ Spring Boot \+ **XML IO DSL** の導入によるメリットを整理し、Karaf環境からの段階的な移行と、移行後の運用設計のポイントについてまとめます。
 
 * ## 9.1 Camel for Spring Bootの導入効果 {#9.1-camel-for-spring-bootの導入効果}
 
@@ -1215,14 +1400,14 @@ Camel for Spring Bootを採用することで、以下のような効果が期�
 
 | 項目 | 導入効果 |
 | ----- | ----- |
-| **開発効率** | Spring Bootの自動構成・DIとの統合により、複雑な設定不要 |
-| **テスト容易性** | camel-test-spring-junit5によるルート単位の自動テストが容易 バグの削減とリリースサイクルの高速化」 |
-| **ビルド・デプロイ** | Fat JARによりOSGi構成不要、単一JARで配布・実行可能 |
-| **構成管理** | `application.properties` による一元的なプロパティ管理 |
-| **運用・監視** | Actuator, HawtIO, JMX連携による可視性と柔軟な監視体制 |
-| **将来性** | Camel 4.x系・Spring Boot 3.x系での標準技術スタックに準拠 |
+| 開発効率 | Spring Boot の自動構成と Camel のシンプルな XML IO DSL により、設定が簡素化 |
+| テスト容易性 | `camel-test-spring-junit5` によるユニットテスト構成が容易 |
+| ビルド／デプロイ | Fat JAR 形式での配布により、Karafの OSGi構成不要 |
+| 構成管理 | `application.yaml` による一元管理とプロファイル切替 |
+| 運用・監視 | Actuator、HawtIO、JMX による柔軟な監視体制 |
+| 将来性 | Camel 4.x \+ Spring Boot 3.x の最新標準スタックに準拠 |
 
-✅ Blueprint DSLやKaraf固有技術への依存を排除することで、技術的負債を整理し、保守性・再利用性を高めることができます。
+✅ Blueprint DSLやKarafに依存しない設計により、**保守性とポータビリティが向上**します。
 
 * ## 9.2 段階的移行戦略（モジュール単位移行、ゼロダウンタイム等） {#9.2-段階的移行戦略（モジュール単位移行、ゼロダウンタイム等）}
 
@@ -1234,7 +1419,7 @@ KarafからSpring Bootへの全面移行は一括ではなく、段階的に進�
 
    * 各バンドルの責務と依存関係を明確化
 
-2. **ルート単位でのSpring XML DSL移行**
+2. **ルート単位でのXML IO DSL移行**
 
    * 検証済みルートから順次Spring Boot化し、ユニットテストを追加
 
@@ -1256,39 +1441,37 @@ KarafからSpring Bootへの全面移行は一括ではなく、段階的に進�
 
 移行後も持続的な運用改善を実現するには、以下の運用設計ポイントを押さえることが重要です。
 
-#### **1\. 監視と可視化の徹底** {#1.-監視と可視化の徹底}
+#### **1\. 可視化と監視の強化** {#1.-可視化と監視の強化}
 
-* Actuator, JMX, HawtIO による稼働状態の常時監視  
-* Camelのルート単位の稼働・失敗統計の収集  
-* ログ出力形式の標準化（JSON形式や構造化ログの導入）
+* /actuator/health でのルート状態確認  
+* HawtIOやJMXによるトレースの活用  
+* JSON構造化ログ導入によるログ標準化
 
-#### **2\. 設定の一元管理** {#2.-設定の一元管理}
+#### **2\. プロパティと機密情報の管理** {#2.-プロパティと機密情報の管理}
 
-* `application.properties` による環境別設定切り替え  
-* 機密情報はSpringの外部プロファイルやSecretsVault等で安全に管理
+* `application.yaml` による環境切替
 
-#### **3\. CI/CDパイプラインとの統合** {#3.-ci/cdパイプラインとの統合}
+#### **3\. CI/CDの整備** {#3.-ci/cdの整備}
 
-* Mavenビルド＋ユニットテスト自動化  
-* 静的解析（SpotBugs, Checkstyle）やセキュリティ検査（OWASP）  
-* JenkinsやGitHub Actionsとの統合でリリース効率化
+* Maven \+ GitHub Actions による自動テスト＋ビルド  
+* 静的解析やセキュリティスキャン統合
 
-#### **4\. Camelアップデートと互換性対応** {#4.-camelアップデートと互換性対応}
+#### **4\. アップグレード対応と技術継承** {#4.-アップグレード対応と技術継承}
 
-* 定期的にCamelのマイナーバージョンを追従  
-* 移行後もコンポーネントの非推奨確認とドキュメント管理を継続
+* Camelアップデートに伴う廃止機能の確認  
+* XML IO DSLの書式チェックやXSDバリデーション導入
 
 ✅ 「移行して終わり」ではなく、**移行後に安定した運用と将来の拡張性を担保する設計**が、成功の鍵となります。
 
 **最終まとめ**
 
-本トレーニングでは、Apache Camel 4.10 と Spring Boot 3.x を用いたルート開発とKarafからの移行について、構成・実装・運用の各側面から実践的に学びました。Blueprint DSLからの脱却、モダンなビルド／デプロイの習得、そして運用改善を実現することで、今後の開発・保守における柔軟性と生産性を飛躍的に向上させることができます。
+本トレーニングを通じて、Apache Camel 4.10 \+ Spring Boot 環境で XML IO DSL によるルート設計・構成・運用を体系的に習得しました。
+
+Blueprint DSL からの移行、設定の近代化、監視体制の確立により、開発と保守の両面で高い柔軟性と生産性が期待できます。
 
 今後は、以下のステップでさらなる改善・活用を目指しましょう：
 
-* 自動テスト・監視体制の整備による運用の高度化
-
-* Apache CamelのEIPやカスタムプロセッサの活用範囲拡大
-
-* チーム内でのSpring Boot＋Camelの開発標準整備とドキュメント化
+* 自動テスト／監視の体制整備（CI＋可視化）  
+* カスタムEIPやProcessorの適用拡大  
+* チーム標準の整備（構成／実装／ドキュメント）
 
